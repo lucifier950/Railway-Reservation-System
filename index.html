@@ -4,364 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Railway Reservation System - Connected to C++ Backend</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #667eea;
-            font-size: 2.8em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 1.2em;
-            margin-bottom: 15px;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 10px 25px;
-            border-radius: 25px;
-            margin-top: 10px;
-            font-weight: 600;
-            font-size: 1.1em;
-            transition: all 0.3s;
-        }
-
-        .status.connected {
-            background: #4caf50;
-            color: white;
-            animation: pulse 2s infinite;
-        }
-
-        .status.disconnected {
-            background: #f44336;
-            color: white;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            transition: transform 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 25px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 1.05em;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1.05em;
-            transition: all 0.3s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active:not(:disabled) {
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            width: auto;
-            padding: 10px 25px;
-            font-size: 0.95em;
-            margin-bottom: 15px;
-        }
-
-        .btn-process {
-            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-            width: auto;
-            padding: 10px 25px;
-            font-size: 0.9em;
-        }
-
-        .network-viz {
-            grid-column: 1 / -1;
-        }
-
-        #network {
-            width: 100%;
-            height: 450px;
-            border: 3px solid #e0e0e0;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .station {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.3em;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            border: 4px solid white;
-        }
-
-        .station:hover {
-            transform: scale(1.2);
-            z-index: 10;
-        }
-
-        .station-label {
-            position: absolute;
-            font-size: 1em;
-            font-weight: 700;
-            color: #333;
-            margin-top: 85px;
-            white-space: nowrap;
-            background: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .bookings-list {
-            grid-column: 1 / -1;
-        }
-
-        .booking-item {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e3e8f0 100%);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 15px;
-            border-left: 5px solid #667eea;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .booking-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-
-        .booking-item.completed {
-            border-left-color: #4caf50;
-            opacity: 0.8;
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-        }
-
-        .booking-info {
-            flex: 1;
-        }
-
-        .booking-info strong {
-            font-size: 1.15em;
-            color: #667eea;
-        }
-
-        .route-result {
-            margin-top: 20px;
-            padding: 20px;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border-radius: 15px;
-            border-left: 5px solid #2196f3;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .route-path {
-            font-weight: 700;
-            color: #1976d2;
-            margin: 12px 0;
-            font-size: 1.15em;
-        }
-
-        .loading {
-            text-align: center;
-            color: #666;
-            padding: 30px;
-            font-size: 1.1em;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 3em;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 1.1em;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-
-            .stats-bar {
-                flex-direction: column;
-            }
-
-            #network {
-                height: 350px;
-            }
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-left: 4px solid #c62828;
-        }
-
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-left: 4px solid #2e7d32;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script>
+        // Check login status on every page load
+        const userRole = localStorage.getItem('userRole');
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+        if (isLoggedIn !== 'true' || !userRole) {
+            window.location.href = 'login.html'; // Redirect to login if not authenticated
+        }
+
+        // Expose role globally for script.js to use
+        window.USER_ROLE = userRole;
+    </script>
     <div class="container">
         <header>
-            <h1>🚂 Dynamic Railway Reservation System</h1>
-            <p class="subtitle">🔗 Connected to C++ Backend Server | Real-time Data Processing</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>🚂 Dynamic Railway Reservation System</h1>
+                <button onclick="logout()" class="btn-secondary" style="width: auto; margin: 0; padding: 8px 15px;">👋 Logout (<span id="roleDisplay"></span>)</button>
+            </div>
+            <p class="subtitle">⚠️ In-Memory (Non-Persistent) Mode | Admin Confirmation Required</p>
             <div id="serverStatus" class="status disconnected">⚠️ Connecting to server...</div>
         </header>
 
-        <div class="stats-bar">
+        <div class="stats-bar" id="adminStatsBar">
             <div class="stat-card">
                 <div class="stat-number" id="pendingCount">0</div>
                 <div class="stat-label">Pending Bookings</div>
@@ -377,7 +45,7 @@
         </div>
 
         <div class="main-content">
-            <div class="card">
+            <div class="card" id="bookingCard">
                 <h2>📝 New Booking Request</h2>
                 <form id="bookingForm">
                     <div class="form-group">
@@ -412,7 +80,7 @@
                 </form>
             </div>
 
-            <div class="card">
+            <div class="card" id="routeCard">
                 <h2>🔍 Find Best Route</h2>
                 <form id="routeForm">
                     <div class="form-group">
@@ -449,320 +117,26 @@
                 <div id="network"></div>
             </div>
 
-            <div class="card bookings-list">
+            <div class="card bookings-list" id="queueCard">
                 <h2>📋 Booking Queue Management</h2>
                 <button onclick="refreshBookings()" class="btn-secondary">🔄 Refresh Now</button>
                 <div id="bookingsList" class="loading">⏳ Loading bookings...</div>
             </div>
+            
+            <div class="card bookings-list" id="passengerMessage" style="display: none; grid-column: 1 / -1; padding: 50px;">
+                <h2 style="border-color: #4caf50;">✅ Booking Status (Passenger View)</h2>
+                
+                <p style="font-size: 1.2em; color: #555; margin-bottom: 20px;">Your booking requests are submitted to the queue and await **Admin confirmation**.</p>
+                <p style="color: #c62828; font-weight: bold; margin-bottom: 30px;">⚠️ WARNING: This system is running in **IN-MEMORY MODE**. All data will be lost when the server is closed.</p>
+
+                <div id="passengerCompletedList">
+                    <h3>Confirmed Tickets</h3>
+                    <div class="loading">⏳ Checking confirmed bookings...</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        const API_URL = 'http://localhost:8080';
-        
-        const stations = [
-            { id: 0, name: 'Delhi', x: 200, y: 50 },
-            { id: 1, name: 'Agra', x: 350, y: 100 },
-            { id: 2, name: 'Jaipur', x: 100, y: 150 },
-            { id: 3, name: 'Mumbai', x: 300, y: 250 },
-            { id: 4, name: 'Pune', x: 450, y: 300 },
-            { id: 5, name: 'Goa', x: 550, y: 200 }
-        ];
-
-        const routes = [
-            { from: 0, to: 1 }, { from: 0, to: 2 }, { from: 1, to: 2 },
-            { from: 1, to: 3 }, { from: 2, to: 3 }, { from: 3, to: 4 },
-            { from: 3, to: 5 }, { from: 4, to: 5 }
-        ];
-
-        // Check server connection
-        async function checkServer() {
-            try {
-                const response = await fetch(`${API_URL}/stations`, { 
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                if (response.ok) {
-                    document.getElementById('serverStatus').className = 'status connected';
-                    document.getElementById('serverStatus').textContent = '✅ Connected to C++ Backend Server';
-                    return true;
-                }
-            } catch (error) {
-                document.getElementById('serverStatus').className = 'status disconnected';
-                document.getElementById('serverStatus').textContent = '❌ Server Not Running - Start railway_backend.exe';
-                return false;
-            }
-        }
-
-        // Draw Railway Network
-        function drawNetwork() {
-            const network = document.getElementById('network');
-            network.innerHTML = '';
-
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.style.position = 'absolute';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
-            
-            routes.forEach(route => {
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                const s1 = stations[route.from];
-                const s2 = stations[route.to];
-                line.setAttribute('x1', s1.x + 35);
-                line.setAttribute('y1', s1.y + 35);
-                line.setAttribute('x2', s2.x + 35);
-                line.setAttribute('y2', s2.y + 35);
-                line.setAttribute('stroke', '#667eea');
-                line.setAttribute('stroke-width', '4');
-                line.setAttribute('opacity', '0.3');
-                svg.appendChild(line);
-            });
-            network.appendChild(svg);
-
-            stations.forEach(station => {
-                const div = document.createElement('div');
-                div.className = 'station';
-                div.style.left = station.x + 'px';
-                div.style.top = station.y + 'px';
-                div.innerHTML = station.id;
-                div.title = station.name;
-                
-                const label = document.createElement('div');
-                label.className = 'station-label';
-                label.textContent = station.name;
-                label.style.left = station.x + 'px';
-                label.style.top = station.y + 'px';
-                
-                network.appendChild(div);
-                network.appendChild(label);
-            });
-        }
-
-        // Update statistics
-        function updateStats(pending, completed) {
-            document.getElementById('pendingCount').textContent = pending.length;
-            document.getElementById('completedCount').textContent = completed.length;
-        }
-
-        // Handle Booking Form
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('bookBtn');
-            btn.disabled = true;
-            btn.textContent = '⏳ Processing...';
-
-            const name = document.getElementById('passengerName').value.trim();
-            const from = document.getElementById('fromStation').value;
-            const to = document.getElementById('toStation').value;
-
-            if (!from || !to) {
-                alert('⚠️ Please select both departure and destination stations!');
-                btn.disabled = false;
-                btn.textContent = '🎫 Book Ticket';
-                return;
-            }
-
-            if (from === to) {
-                alert('⚠️ Departure and destination stations cannot be the same!');
-                btn.disabled = false;
-                btn.textContent = '🎫 Book Ticket';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/addBooking`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `name=${encodeURIComponent(name)}&from=${from}&to=${to}`
-                });
-
-                const data = await response.json();
-                alert(`✅ Booking Added Successfully!\n\n🎫 Booking ID: ${data.id}\n👤 Passenger: ${name}\n📍 Route: ${stations[from].name} → ${stations[to].name}`);
-                document.getElementById('bookingForm').reset();
-                refreshBookings();
-            } catch (error) {
-                alert('❌ Error: Unable to connect to server!\n\nPlease make sure:\n1. C++ backend is compiled\n2. railway_backend.exe is running\n3. Server is listening on port 8080');
-            }
-
-            btn.disabled = false;
-            btn.textContent = '🎫 Book Ticket';
-        });
-
-        // Handle Route Form
-        document.getElementById('routeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('routeBtn');
-            btn.disabled = true;
-            btn.textContent = '⏳ Searching...';
-
-            const from = document.getElementById('routeFrom').value;
-            const to = document.getElementById('routeTo').value;
-
-            if (!from || !to) {
-                alert('⚠️ Please select both departure and destination stations!');
-                btn.disabled = false;
-                btn.textContent = '🚀 Find Routes';
-                return;
-            }
-
-            if (from === to) {
-                alert('⚠️ Departure and destination stations cannot be the same!');
-                btn.disabled = false;
-                btn.textContent = '🚀 Find Routes';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/findRoute?from=${from}&to=${to}`);
-                const data = await response.json();
-
-                const resultDiv = document.getElementById('routeResult');
-                resultDiv.innerHTML = `
-                    <div class="route-result">
-                        <strong>⚡ Fastest Route</strong>
-                        <div class="route-path">${data.fastestPath.map(id => stations[id].name).join(' → ')}</div>
-                        <div style="font-size: 1.1em; color: #1976d2;">⏱️ Total Time: ${data.fastestTime} minutes</div>
-                    </div>
-                    <div class="route-result" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left-color: #ff9800;">
-                        <strong>💰 Cheapest Route</strong>
-                        <div class="route-path" style="color: #e65100;">${data.cheapestPath.map(id => stations[id].name).join(' → ')}</div>
-                        <div style="font-size: 1.1em; color: #e65100;">💵 Total Cost: ₹${data.cheapestCost}</div>
-                    </div>
-                `;
-            } catch (error) {
-                document.getElementById('routeResult').innerHTML = `
-                    <div class="error-message">
-                        ❌ Error: Unable to connect to server!<br>
-                        Please ensure the C++ backend is running.
-                    </div>
-                `;
-            }
-
-            btn.disabled = false;
-            btn.textContent = '🚀 Find Routes';
-        });
-
-        // Refresh Bookings
-        async function refreshBookings() {
-            const list = document.getElementById('bookingsList');
-            list.innerHTML = '<div class="loading">⏳ Loading bookings...</div>';
-
-            try {
-                const [pendingRes, completedRes] = await Promise.all([
-                    fetch(`${API_URL}/pendingBookings`),
-                    fetch(`${API_URL}/completedBookings`)
-                ]);
-
-                const pending = await pendingRes.json();
-                const completed = await completedRes.json();
-
-                updateStats(pending, completed);
-
-                list.innerHTML = '';
-
-                if (pending.length === 0 && completed.length === 0) {
-                    list.innerHTML = '<p style="text-align: center; padding: 40px; color: #999; font-size: 1.2em;">📭 No bookings yet. Create your first booking!</p>';
-                    return;
-                }
-
-                if (pending.length > 0) {
-                    const pendingHeader = document.createElement('h3');
-                    pendingHeader.textContent = '⏳ Pending Bookings';
-                    pendingHeader.style.color = '#667eea';
-                    pendingHeader.style.marginBottom = '15px';
-                    pendingHeader.style.marginTop = '10px';
-                    list.appendChild(pendingHeader);
-                }
-
-                pending.forEach(booking => {
-                    const div = document.createElement('div');
-                    div.className = 'booking-item';
-                    div.innerHTML = `
-                        <div class="booking-info">
-                            <strong>🎫 Booking ID: ${booking.id}</strong><br>
-                            <span style="font-size: 1.1em;">👤 ${booking.name}</span><br>
-                            <span style="color: #666;">📍 ${stations[booking.from].name} → ${stations[booking.to].name}</span>
-                        </div>
-                        <button onclick="processBooking()" class="btn-process">✅ Process Now</button>
-                    `;
-                    list.appendChild(div);
-                });
-
-                if (completed.length > 0) {
-                    const completedHeader = document.createElement('h3');
-                    completedHeader.textContent = '✅ Completed Bookings';
-                    completedHeader.style.color = '#4caf50';
-                    completedHeader.style.marginBottom = '15px';
-                    completedHeader.style.marginTop = '25px';
-                    list.appendChild(completedHeader);
-                }
-
-                completed.forEach(booking => {
-                    const div = document.createElement('div');
-                    div.className = 'booking-item completed';
-                    div.innerHTML = `
-                        <div class="booking-info">
-                            <strong>✅ Booking ID: ${booking.id}</strong><br>
-                            <span style="font-size: 1.1em;">👤 ${booking.name}</span><br>
-                            <span style="color: #666;">📍 ${stations[booking.from].name} → ${stations[booking.to].name}</span><br>
-                            <span style="color: #4caf50; font-weight: 600;">Status: Completed ✓</span>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            } catch (error) {
-                list.innerHTML = `
-                    <div class="error-message">
-                        ❌ Could not load bookings!<br><br>
-                        <strong>Make sure:</strong><br>
-                        • C++ backend server is running<br>
-                        • Server is accessible at ${API_URL}<br>
-                        • No firewall blocking the connection
-                    </div>
-                `;
-            }
-        }
-
-        // Process Booking
-        async function processBooking() {
-            try {
-                const response = await fetch(`${API_URL}/processBooking`, { method: 'POST' });
-                const data = await response.json();
-
-                if (data.error) {
-                    alert('⚠️ ' + data.error);
-                    return;
-                }
-
-                const fastestPath = data.fastestPath.map(id => stations[id].name).join(' → ');
-                const cheapestPath = data.cheapestPath.map(id => stations[id].name).join(' → ');
-
-                alert(`✅ Booking Processed Successfully!\n\n🎫 Booking ID: ${data.id}\n👤 Passenger: ${data.name}\n\n⚡ FASTEST ROUTE (${data.fastestTime} min):\n${fastestPath}\n\n💰 CHEAPEST ROUTE (₹${data.cheapestCost}):\n${cheapestPath}`);
-                
-                refreshBookings();
-            } catch (error) {
-                alert('❌ Error processing booking!\n\nPlease check if the server is running.');
-            }
-        }
-
-        // Initialize
-        drawNetwork();
-        checkServer().then(connected => {
-            if (connected) {
-                refreshBookings();
-            }
-        });
-
-        // Auto-refresh bookings every 5 seconds
-        setInterval(() => {
-            checkServer().then(connected => {
-                if (connected) refreshBookings();
-            });
-        }, 5000);
-
-        console.log('%c🚂 Railway Reservation System', 'color: #667eea; font-size: 20px; font-weight: bold;');
-        console.log('%c✅ Connected to C++ Backend', 'color: #4caf50; font-size: 14px;');
-        console.log('%cMade with ❤️ using C++ & JavaScript', 'color: #666; font-size: 12px;');
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

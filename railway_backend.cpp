@@ -27,6 +27,8 @@
 
 using namespace std;
 
+// --- CLASS DEFINITIONS ---
+
 // Station Class
 class Station {
 private:
@@ -39,6 +41,12 @@ public:
     
     string getName() const { return name; }
     int getId() const { return id; }
+
+    string toJSON() const {
+        stringstream ss;
+        ss << "{\"id\":" << id << ",\"name\":\"" << name << "\"}";
+        return ss.str();
+    }
 };
 
 // Edge Class
@@ -77,12 +85,20 @@ public:
         stations[id] = Station(name, id);
     }
 
-    void addRoute(int src, int dest, int time, int cost) {
+    void addRoute(int src, int dest, int time, int cost, bool checkReverse = true) {
+        // Simple check to prevent adding duplicates
+        for (const auto& edge : adjList[src]) {
+            if (edge.getDest() == dest) return;
+        }
+
         adjList[src].push_back(Edge(dest, time, cost));
-        adjList[dest].push_back(Edge(src, time, cost));
+        if (checkReverse) {
+            adjList[dest].push_back(Edge(src, time, cost));
+        }
     }
 
     PathResult findShortestPath(int src, int dest, bool byTime = true) {
+        // Dijkstra's Algorithm
         vector<int> dist(numStations, INT_MAX);
         vector<int> parent(numStations, -1);
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
@@ -100,7 +116,7 @@ public:
             for (size_t i = 0; i < adjList[u].size(); i++) {
                 const Edge& e = adjList[u][i];
                 int weight = byTime ? e.getTime() : e.getCost();
-                if (dist[u] + weight < dist[e.getDest()]) {
+                if (dist[u] != INT_MAX && dist[u] + weight < dist[e.getDest()]) {
                     dist[e.getDest()] = dist[u] + weight;
                     parent[e.getDest()] = u;
                     pq.push(make_pair(dist[e.getDest()], e.getDest()));
@@ -128,23 +144,22 @@ public:
         return result;
     }
 
-    string getStationName(int id) {
-        if (stations.find(id) != stations.end())
-            return stations[id].getName();
-        return "Unknown";
-    }
-
     string getAllStations() {
         stringstream ss;
         ss << "[";
+        int count = 0;
         for (int i = 0; i < numStations; i++) {
-            ss << "{\"id\":" << i << ",\"name\":\"" << stations[i].getName() << "\"}";
-            if (i < numStations - 1) ss << ",";
+            if (stations.count(i)) {
+                if (count > 0) ss << ",";
+                ss << stations[i].toJSON();
+                count++;
+            }
         }
         ss << "]";
         return ss.str();
     }
 };
+
 
 // Booking Request Class
 class BookingRequest {
@@ -158,20 +173,18 @@ private:
 
 public:
     BookingRequest() : id(0), passengerName(""), from(-1), to(-1), timestamp(0), processed(false) {}
-    BookingRequest(int i, string name, int f, int t, int ts) 
-        : id(i), passengerName(name), from(f), to(t), timestamp(ts), processed(false) {}
+    BookingRequest(int i, string name, int f, int t, int ts, bool p = false) 
+        : id(i), passengerName(name), from(f), to(t), timestamp(ts), processed(p) {}
     
     int getId() const { return id; }
     string getPassengerName() const { return passengerName; }
     int getFrom() const { return from; }
     int getTo() const { return to; }
-    int getTimestamp() const { return timestamp; }
-    bool isProcessed() const { return processed; }
     
     void setProcessed(bool p) { processed = p; }
     
     bool operator<(const BookingRequest& other) const {
-        return timestamp > other.timestamp;
+        return timestamp > other.timestamp; // Priority queue sorts by oldest first
     }
 
     string toJSON() const {
@@ -186,7 +199,8 @@ public:
     }
 };
 
-// Booking System Class
+
+// Booking System Class (In-Memory Only)
 class BookingSystem {
 private:
     priority_queue<BookingRequest> bookingQueue;
@@ -199,6 +213,7 @@ public:
     int addBooking(string name, int from, int to) {
         BookingRequest req(nextId++, name, from, to, (int)time(0));
         bookingQueue.push(req);
+        cout << " [INFO] Added booking ID: " << req.getId() << ". Waiting for Admin confirmation.\n";
         return req.getId();
     }
 
@@ -217,6 +232,7 @@ public:
             return "{\"error\":\"No route available\"}";
         }
 
+        // Generate JSON response for confirmed ticket
         stringstream ss;
         ss << "{\"id\":" << req.getId()
            << ",\"name\":\"" << req.getPassengerName()
@@ -238,8 +254,10 @@ public:
         }
         ss << "]}";
 
+        // Move to completed bookings (in-memory only)
         req.setProcessed(true);
         completedBookings.push_back(req);
+        cout << " [CONFIRMED] Booking ID: " << req.getId() << " confirmed by Admin.\n";
 
         return ss.str();
     }
@@ -271,11 +289,12 @@ public:
     }
 };
 
+
 // Global instances
 RailwayGraph* railway = NULL;
 BookingSystem* bookingSystem = NULL;
 
-// HTTP Server Functions
+// --- HTTP SERVER HELPERS ---
 string urlDecode(const string& str) {
     string result;
     for (size_t i = 0; i < str.length(); i++) {
@@ -305,25 +324,24 @@ string parseQueryParam(const string& query, const string& param) {
 }
 
 string handleRequest(const string& request) {
-    stringstream response;
     
     // CORS headers
     string headers = "HTTP/1.1 200 OK\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Access-Control-Allow-Origin: *\r\n"
-                    "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
-                    "Access-Control-Allow-Headers: Content-Type\r\n\r\n";
+                     "Content-Type: application/json\r\n"
+                     "Access-Control-Allow-Origin: *\r\n"
+                     "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+                     "Access-Control-Allow-Headers: Content-Type\r\n\r\n";
 
     if (request.find("OPTIONS") == 0) {
         return headers;
     }
 
-    // Route: GET /stations
+    // --- Route Handling Logic ---
+
     if (request.find("GET /stations") == 0) {
         return headers + railway->getAllStations();
     }
 
-    // Route: GET /findRoute?from=0&to=5
     if (request.find("GET /findRoute") == 0) {
         size_t queryPos = request.find("?");
         string query = request.substr(queryPos + 1, request.find(" HTTP") - queryPos - 1);
@@ -352,7 +370,6 @@ string handleRequest(const string& request) {
         return headers + json.str();
     }
 
-    // Route: POST /addBooking
     if (request.find("POST /addBooking") == 0) {
         size_t bodyPos = request.find("\r\n\r\n");
         string body = request.substr(bodyPos + 4);
@@ -368,18 +385,15 @@ string handleRequest(const string& request) {
         return headers + json.str();
     }
 
-    // Route: POST /processBooking
     if (request.find("POST /processBooking") == 0) {
         string result = bookingSystem->processBooking(*railway);
         return headers + result;
     }
 
-    // Route: GET /pendingBookings
     if (request.find("GET /pendingBookings") == 0) {
         return headers + bookingSystem->getPendingBookings();
     }
 
-    // Route: GET /completedBookings
     if (request.find("GET /completedBookings") == 0) {
         return headers + bookingSystem->getCompletedBookings();
     }
@@ -390,7 +404,10 @@ string handleRequest(const string& request) {
 void startServer() {
 #ifdef _WIN32
     WSADATA wsaData;
-    WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        cerr << "WSAStartup failed.\n";
+        return;
+    }
 #endif
 
     SOCKET serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -423,17 +440,22 @@ void startServer() {
         return;
     }
 
-    cout << "\n🚀 Railway Server Started!\n";
+    cout << "\n🚀 Railway Server Started (IN-MEMORY MODE)!\n";
     cout << "📡 Listening on http://localhost:8080\n";
-    cout << "🌐 Open index.html in your browser\n";
-    cout << "Press Ctrl+C to stop the server\n\n";
+    cout << "⚠️ Bookings must be CONFIRMED by Admin and are NOT persistent!\n";
+    cout << "🌐 Open login.html in your browser\n";
+    cout << "--------------------------------\n";
 
     while (true) {
         SOCKET clientSocket = accept(serverSocket, NULL, NULL);
         if (clientSocket == INVALID_SOCKET) continue;
 
         char buffer[4096] = {0};
-        recv(clientSocket, buffer, sizeof(buffer), 0);
+        int bytesReceived = recv(clientSocket, buffer, sizeof(buffer), 0);
+        if (bytesReceived <= 0) {
+            closesocket(clientSocket);
+            continue;
+        }
 
         string request(buffer);
         string response = handleRequest(request);
@@ -448,31 +470,36 @@ void startServer() {
 #endif
 }
 
+void initializeRailwayGraph(RailwayGraph* graph) {
+    graph->addStation(0, "Delhi");
+    graph->addStation(1, "Agra");
+    graph->addStation(2, "Jaipur");
+    graph->addStation(3, "Mumbai");
+    graph->addStation(4, "Pune");
+    graph->addStation(5, "Goa");
+
+    // Time (min), Cost (INR)
+    graph->addRoute(0, 1, 120, 500);
+    graph->addRoute(0, 2, 180, 700);
+    graph->addRoute(1, 2, 150, 600);
+    graph->addRoute(1, 3, 480, 1500);
+    graph->addRoute(2, 3, 540, 1200);
+    graph->addRoute(3, 4, 90, 300);
+    graph->addRoute(3, 5, 360, 1000);
+    graph->addRoute(4, 5, 270, 800);
+}
+
 int main() {
-    // Initialize Railway Network
+    // 1. Initialize Graph (Hardcoded Data)
     railway = new RailwayGraph(6);
-    
-    railway->addStation(0, "Delhi");
-    railway->addStation(1, "Agra");
-    railway->addStation(2, "Jaipur");
-    railway->addStation(3, "Mumbai");
-    railway->addStation(4, "Pune");
-    railway->addStation(5, "Goa");
-
-    railway->addRoute(0, 1, 120, 500);
-    railway->addRoute(0, 2, 180, 700);
-    railway->addRoute(1, 2, 150, 600);
-    railway->addRoute(1, 3, 480, 1500);
-    railway->addRoute(2, 3, 540, 1200);
-    railway->addRoute(3, 4, 90, 300);
-    railway->addRoute(3, 5, 360, 1000);
-    railway->addRoute(4, 5, 270, 800);
-
     bookingSystem = new BookingSystem();
+    
+    initializeRailwayGraph(railway); 
 
-    // Start HTTP Server
+    // 2. Start Server
     startServer();
 
+    // Cleanup
     delete railway;
     delete bookingSystem;
 

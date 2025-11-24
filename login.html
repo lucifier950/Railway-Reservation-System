@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Reservation System - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific login styles required for this file's operation */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            max-width: 450px;
+            width: 90%;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .login-container h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: block;
+        }
+
+        .login-role-select {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .role-button {
+            flex: 1;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: 2px solid #ccc;
+            background-color: #f8f8f8;
+            color: #555;
+        }
+
+        .role-button.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-container button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🔐 System Login</h1>
+        
+        <div class="login-role-select">
+            <div class="role-button active" id="btnAdmin">👨‍💼 Admin Login</div>
+            <div class="role-button" id="btnPassenger">👤 Passenger Login</div>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">User ID</label>
+                <input type="text" id="username" placeholder="Enter User ID (admin or pass)" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter Password" required>
+            </div>
+            <p id="loginMessage" style="color: red; margin-top: 10px;"></p>
+            <button type="submit" id="loginBtn">Log In</button>
+        </form>
+    </div>
+
+    <script>
+        let currentRole = 'admin'; // Default role
+        
+        // Default credentials for the mock login
+        const credentials = {
+            admin: { user: 'admin', pass: 'admin123' },
+            passenger: { user: 'pass', pass: 'pass123' }
+        };
+
+        document.getElementById('btnAdmin').addEventListener('click', () => setRole('admin'));
+        document.getElementById('btnPassenger').addEventListener('click', () => setRole('passenger'));
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('btnAdmin').classList.remove('active');
+            document.getElementById('btnPassenger').classList.remove('active');
+            document.getElementById(`btn${role.charAt(0).toUpperCase() + role.slice(1)}`).classList.add('active');
+            document.getElementById('username').placeholder = role === 'admin' ? 'Enter Admin ID (e.g., admin)' : 'Enter Passenger ID (e.g., pass)';
+        }
+        
+        // Initialize placeholder
+        setRole('admin'); 
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const message = document.getElementById('loginMessage');
+            
+            message.textContent = '';
+
+            let isAuthenticated = false;
+
+            if (credentials[currentRole] && username === credentials[currentRole].user && password === credentials[currentRole].pass) {
+                isAuthenticated = true;
+            }
+
+            if (isAuthenticated) {
+                // Store role and redirect
+                localStorage.setItem('userRole', currentRole);
+                localStorage.setItem('isLoggedIn', 'true');
+                window.location.href = 'index.html';
+            } else {
+                message.textContent = 'Invalid credentials for ' + currentRole + '. User: ' + credentials[currentRole].user + ', Pass: ' + credentials[currentRole].pass;
+            }
+        });
+        
+        // Redirect to index.html if already logged in
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = 'index.html';
+        }
+
+    </script>
+</body>
+</html>
