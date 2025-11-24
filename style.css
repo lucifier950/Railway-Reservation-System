@@ -186,7 +186,9 @@ button:disabled {
     border-radius: 15px;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     position: relative;
-    overflow: hidden;
+    /* --- FIX: Allow scrollbars if map content exceeds 450px height --- */
+    overflow: auto; 
+    /* ------------------------------------------------------------------ */
 }
 
 .station {
@@ -352,17 +354,13 @@ button:disabled {
     border-left: 4px solid #2e7d32;
 }
 
-
 /* --- NEW STYLES FOR LOGIN AND ANIMATION --- */
 
-/* 1. Animation Style */
 .active-line {
     transition: stroke-width 0.3s, opacity 0.3s, stroke 0.3s;
-    /* Add a subtle shadow for visibility */
     filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5)); 
 }
 
-/* 2. Login Container Style (Duplicated here for completeness, though defined in login.html style block too) */
 .login-container {
     max-width: 450px;
     width: 90%;

@@ -11,19 +11,9 @@
 #include <climits>
 
 // Simple HTTP Server Headers
-#ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #pragma comment(lib, "ws2_32.lib")
-#else
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <unistd.h>
-    #define SOCKET int
-    #define INVALID_SOCKET -1
-    #define SOCKET_ERROR -1
-    #define closesocket close
-#endif
 
 using namespace std;
 
@@ -86,7 +76,6 @@ public:
     }
 
     void addRoute(int src, int dest, int time, int cost, bool checkReverse = true) {
-        // Simple check to prevent adding duplicates
         for (const auto& edge : adjList[src]) {
             if (edge.getDest() == dest) return;
         }
@@ -184,7 +173,7 @@ public:
     void setProcessed(bool p) { processed = p; }
     
     bool operator<(const BookingRequest& other) const {
-        return timestamp > other.timestamp; // Priority queue sorts by oldest first
+        return timestamp > other.timestamp;
     }
 
     string toJSON() const {
@@ -287,6 +276,8 @@ public:
         ss << "]";
         return ss.str();
     }
+    
+
 };
 
 
@@ -294,7 +285,7 @@ public:
 RailwayGraph* railway = NULL;
 BookingSystem* bookingSystem = NULL;
 
-// --- HTTP SERVER HELPERS ---
+// --- HTTP SERVER HELPERS (Unchanged) ---
 string urlDecode(const string& str) {
     string result;
     for (size_t i = 0; i < str.length(); i++) {
@@ -398,6 +389,8 @@ string handleRequest(const string& request) {
         return headers + bookingSystem->getCompletedBookings();
     }
 
+    // NOTE: Route GET /totalRevenue is REMOVED.
+    
     return headers + "{\"error\":\"Unknown endpoint\"}";
 }
 
@@ -440,10 +433,10 @@ void startServer() {
         return;
     }
 
-    cout << "\n🚀 Railway Server Started (IN-MEMORY MODE)!\n";
-    cout << "📡 Listening on http://localhost:8080\n";
-    cout << "⚠️ Bookings must be CONFIRMED by Admin and are NOT persistent!\n";
-    cout << "🌐 Open login.html in your browser\n";
+    cout << "\n Railway Server Started (IN-MEMORY MODE)!\n";
+    cout << " Listening on http://localhost:8080\n";
+    cout << " Bookings must be CONFIRMED by Admin and are NOT persistent!\n";
+    cout << "Open login.html in your browser\n";
     cout << "--------------------------------\n";
 
     while (true) {
@@ -477,31 +470,35 @@ void initializeRailwayGraph(RailwayGraph* graph) {
     graph->addStation(3, "Mumbai");
     graph->addStation(4, "Pune");
     graph->addStation(5, "Goa");
+    graph->addStation(6, "Lucknow");      
+    graph->addStation(7, "Muzaffarnagar"); 
 
-    // Time (min), Cost (INR)
-    graph->addRoute(0, 1, 120, 500);
-    graph->addRoute(0, 2, 180, 700);
-    graph->addRoute(1, 2, 150, 600);
-    graph->addRoute(1, 3, 480, 1500);
-    graph->addRoute(2, 3, 540, 1200);
-    graph->addRoute(3, 4, 90, 300);
-    graph->addRoute(3, 5, 360, 1000);
-    graph->addRoute(4, 5, 270, 800);
+    // Default Routes (Time in min, Cost in INR)
+    graph->addRoute(0, 1, 120, 500); // Delhi <-> Agra
+    graph->addRoute(0, 2, 180, 700); // Delhi <-> Jaipur
+    graph->addRoute(1, 2, 150, 600); // Agra <-> Jaipur
+    graph->addRoute(1, 3, 480, 1500); // Agra <-> Mumbai
+    graph->addRoute(2, 3, 540, 1200); // Jaipur <-> Mumbai
+    graph->addRoute(3, 4, 90, 300); // Mumbai <-> Pune
+    graph->addRoute(3, 5, 360, 1000); // Mumbai <-> Goa
+    graph->addRoute(4, 5, 270, 800); // Pune <-> Goa
+    
+    // NEW ROUTES
+    graph->addRoute(0, 7, 100, 350); // Delhi <-> Muzaffarnagar (7)
+    graph->addRoute(7, 6, 300, 900); // Muzaffarnagar (7) <-> Lucknow (6)
+    graph->addRoute(6, 1, 360, 1100); // Lucknow (6) <-> Agra 
 }
 
 int main() {
-    // 1. Initialize Graph (Hardcoded Data)
-    railway = new RailwayGraph(6);
+    railway = new RailwayGraph(8); 
     bookingSystem = new BookingSystem();
     
     initializeRailwayGraph(railway); 
 
-    // 2. Start Server
     startServer();
 
-    // Cleanup
     delete railway;
     delete bookingSystem;
-
+    
     return 0;
 }

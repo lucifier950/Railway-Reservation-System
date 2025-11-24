@@ -15,41 +15,56 @@ document.getElementById('roleDisplay').textContent = USER_ROLE.toUpperCase();
 // Role-based visibility logic 
 function applyRoleRestrictions() {
     if (USER_ROLE === 'passenger') {
+        // Passenger View
         document.getElementById('adminStatsBar').style.display = 'none';
         document.getElementById('queueCard').style.display = 'none';
         document.getElementById('passengerMessage').style.display = 'block';
+        document.getElementById('bookingCard').style.display = 'block'; 
+        document.getElementById('routeCard').style.display = 'block'; 
         
         const mainContent = document.querySelector('.main-content');
-        mainContent.style.gridTemplateColumns = '1fr 1fr';
+        mainContent.style.gridTemplateColumns = '1fr 1fr'; 
         document.querySelector('.network-viz').style.gridColumn = '1 / -1';
     } else {
+        // Admin View: Focus purely on management
         document.getElementById('adminStatsBar').style.display = 'flex';
         document.getElementById('queueCard').style.display = 'block';
         document.getElementById('passengerMessage').style.display = 'none';
         
+        // Hide Booking and Route Cards for Admin
+        document.getElementById('bookingCard').style.display = 'none'; 
+        document.getElementById('routeCard').style.display = 'none'; 
+        
+        // Adjust grid to single column for network viz and queue management
         const mainContent = document.querySelector('.main-content');
-        mainContent.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        mainContent.style.gridTemplateColumns = '1fr'; 
+        document.querySelector('.network-viz').style.gridColumn = 'auto'; 
     }
 }
 applyRoleRestrictions();
 
-
+// --- UPDATED STATION DATA (REFINED COORDINATES) ---
 const stations = [
-    { id: 0, name: 'Delhi', x: 200, y: 50 },
-    { id: 1, name: 'Agra', x: 350, y: 100 },
-    { id: 2, name: 'Jaipur', x: 100, y: 150 },
-    { id: 3, name: 'Mumbai', x: 300, y: 250 },
-    { id: 4, name: 'Pune', x: 450, y: 300 },
-    { id: 5, name: 'Goa', x: 550, y: 200 }
+    { id: 0, name: 'Delhi', x: 200, y: 150 },      // North
+    { id: 1, name: 'Agra', x: 350, y: 250 },       // Central
+    { id: 2, name: 'Jaipur', x: 50, y: 300 },      // West
+    { id: 3, name: 'Mumbai', x: 200, y: 400 },     // Southwest (Moved left and up slightly)
+    { id: 4, name: 'Pune', x: 400, y: 450 },       // Southeast of Mumbai (More separation from 3)
+    { id: 5, name: 'Goa', x: 550, y: 350 },        // South-East
+    { id: 6, name: 'Lucknow', x: 550, y: 200 },    // East
+    { id: 7, name: 'Muzaffarnagar', x: 380, y: 50 } // Far North
 ];
+document.getElementById('totalStations').textContent = stations.length;
 
+// Note: Routes here must match the C++ backend routes to correctly draw the graph.
 const routes = [
     { from: 0, to: 1 }, { from: 0, to: 2 }, { from: 1, to: 2 },
     { from: 1, to: 3 }, { from: 2, to: 3 }, { from: 3, to: 4 },
-    { from: 3, to: 5 }, { from: 4, to: 5 }
+    { from: 3, to: 5 }, { from: 4, to: 5 },
+    { from: 0, to: 7 }, { from: 7, to: 6 }, { from: 6, to: 1 }
 ];
 
-// --- ANIMATION FUNCTIONS ---
+// --- ANIMATION FUNCTIONS (Unchanged) ---
 function findLineElement(startId, endId) {
     const svg = document.querySelector('#network svg');
     if (!svg) return null;
@@ -139,6 +154,7 @@ function drawNetwork() {
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.style.position = 'absolute';
+    // Set SVG height/width to encompass all nodes for scroll
     svg.style.width = '100%';
     svg.style.height = '100%';
     
@@ -271,12 +287,12 @@ document.getElementById('routeForm').addEventListener('submit', async (e) => {
 });
 
 
-// Refresh Bookings (MODIFIED to show confirmed list for passengers)
+// Refresh Bookings
 async function refreshBookings() {
     const isConnected = await checkServer();
     if (!isConnected) return; 
 
-    // Fetch all bookings regardless of role to check stats
+    // Fetch all bookings
     let pending = [];
     let completed = [];
     try {
@@ -288,14 +304,13 @@ async function refreshBookings() {
         completed = await completedRes.json();
     } catch (error) {
          console.error("Error fetching booking data:", error);
-         // The error message for the list update will be handled below if necessary
     }
     
     updateStats(pending, completed); 
 
     if (USER_ROLE === 'passenger') {
         const list = document.getElementById('passengerCompletedList');
-        list.innerHTML = '<h3>✅ Confirmed Tickets</h3>'; // Reset title
+        list.innerHTML = '<h3>✅ Confirmed Tickets</h3>'; 
 
         if (completed.length === 0) {
             list.innerHTML += '<p style="text-align: center; padding: 20px; color: #999;">No confirmed tickets found in memory.</p>';
@@ -320,7 +335,7 @@ async function refreshBookings() {
         return; // Exit if passenger
     } 
     
-    // --- Admin Role Logic (Original Queue Management) ---
+    // --- Admin Role Logic ---
     
     const list = document.getElementById('bookingsList');
     list.innerHTML = '';

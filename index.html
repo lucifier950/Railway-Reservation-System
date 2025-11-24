@@ -22,10 +22,10 @@
     <div class="container">
         <header>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1>🚂 Dynamic Railway Reservation System</h1>
+                <h1>🚂TICKET BOOKING SYSTEM</h1>
                 <button onclick="logout()" class="btn-secondary" style="width: auto; margin: 0; padding: 8px 15px;">👋 Logout (<span id="roleDisplay"></span>)</button>
             </div>
-            <p class="subtitle">⚠️ In-Memory (Non-Persistent) Mode | Admin Confirmation Required</p>
+            <p class="subtitle">⚠️Admin Confirmation Required</p>
             <div id="serverStatus" class="status disconnected">⚠️ Connecting to server...</div>
         </header>
 
@@ -39,7 +39,7 @@
                 <div class="stat-label">Completed Bookings</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="totalStations">6</div>
+                <div class="stat-number" id="totalStations">8</div> 
                 <div class="stat-label">Total Stations</div>
             </div>
         </div>
@@ -62,6 +62,8 @@
                             <option value="3">Mumbai</option>
                             <option value="4">Pune</option>
                             <option value="5">Goa</option>
+                            <option value="6">Lucknow</option>
+                            <option value="7">Muzaffarnagar</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -74,6 +76,8 @@
                             <option value="3">Mumbai</option>
                             <option value="4">Pune</option>
                             <option value="5">Goa</option>
+                            <option value="6">Lucknow</option>
+                            <option value="7">Muzaffarnagar</option>
                         </select>
                     </div>
                     <button type="submit" id="bookBtn">🎫 Book Ticket</button>
@@ -93,6 +97,8 @@
                             <option value="3">Mumbai</option>
                             <option value="4">Pune</option>
                             <option value="5">Goa</option>
+                            <option value="6">Lucknow</option>
+                            <option value="7">Muzaffarnagar</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -105,6 +111,8 @@
                             <option value="3">Mumbai</option>
                             <option value="4">Pune</option>
                             <option value="5">Goa</option>
+                            <option value="6">Lucknow</option>
+                            <option value="7">Muzaffarnagar</option>
                         </select>
                     </div>
                     <button type="submit" id="routeBtn">🚀 Find Routes</button>
@@ -127,7 +135,6 @@
                 <h2 style="border-color: #4caf50;">✅ Booking Status (Passenger View)</h2>
                 
                 <p style="font-size: 1.2em; color: #555; margin-bottom: 20px;">Your booking requests are submitted to the queue and await **Admin confirmation**.</p>
-                <p style="color: #c62828; font-weight: bold; margin-bottom: 30px;">⚠️ WARNING: This system is running in **IN-MEMORY MODE**. All data will be lost when the server is closed.</p>
 
                 <div id="passengerCompletedList">
                     <h3>Confirmed Tickets</h3>
