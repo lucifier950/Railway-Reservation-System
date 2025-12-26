@@ -1,118 +1,34 @@
-🚆 **Railway Reservation System**
+# 🚆 Railway Reservation System
 
-A Railway Reservation System built using C++ (backend) and HTML, CSS, JavaScript (frontend).
-This project simulates a basic railway ticket booking workflow including user login, ticket reservation, and backend processing.
+A user-friendly Railway Reservation System built for booking train tickets, managing passenger details, and handling reservation records. This system is ideal for Computer Science students who want to understand Object-Oriented Programming, file handling, and basic reservation system workflows.
 
-📌 Project Overview
+## 📌 Features
 
-This system demonstrates how a traditional console-based C++ backend can interact with a web-based frontend.
-It is designed as an academic project to showcase Object-Oriented Programming, file handling, and basic frontend integration.
+- ✅ **User Login / Registration**
+- 🚆 **Train Booking** – Book tickets for available trains
+- 🎟️ **Ticket Management** – View and manage booked tickets
+- 👤 **Passenger Details** – Store passenger information
+- 📂 **File Handling** – Store reservation data locally
+- 🧠 **OOP-Based Design** – Clean and modular C++ structure
 
-🧩 Features
+## 💻 Tech Stack
 
-🔐 User Login Interface
+- **Language**: C++  
+- **GUI**: HTML, CSS, JavaScript  
+- **Database**: File System  
 
-🚆 Train reservation logic (backend)
+## 🚀 Getting Started
 
-🎟️ Ticket booking handling using C++
+### Prerequisites
 
-📂 File-based data management
+Make sure you have the following installed:
 
-🌐 Simple web UI using HTML, CSS, and JavaScript
+- C++ Compiler (like g++)
+- Web Browser
+- Git
 
-🧠 OOP concepts like classes, objects, and functions
+### Installation
 
-📁 Project Structure
-Railway-Reservation-System/
-│
-├── index.html              # Main homepage
-├── login.html              # Login page
-├── style.css               # Styling for frontend
-├── script.js               # Frontend logic
-│
-├── railway_backend.cpp     # Core backend logic (C++)
-├── railway_backend.exe     # Compiled executable (Windows)
-│
-├── .gitignore              # Ignored files configuration
-└── README.md               # Project documentation
-
-🛠️ Technologies Used
-Backend
-
-C++
-
-Object-Oriented Programming
-
-File Handling
-
-Menu-driven logic
-
-Frontend
-
-HTML – Structure
-
-CSS – Styling
-
-JavaScript – Client-side interaction
-
-▶️ How to Run the Project
-1️⃣ Backend (C++)
-
-If you already have the executable:
-
-railway_backend.exe
-
-
-Or compile manually:
-
-g++ railway_backend.cpp -o railway_backend
-
-
-Then run:
-
-./railway_backend
-
-2️⃣ Frontend
-
-Simply open:
-
-index.html
-
-
-in any modern web browser.
-
-🎯 Learning Outcomes
-
-Understanding real-world reservation systems
-
-Applying OOP concepts in C++
-
-Using file handling for data storage
-
-Integrating frontend with backend logic
-
-Writing structured and maintainable code
-
-🚀 Future Enhancements
-
-Database integration (MySQL)
-
-Real-time seat availability
-
-Admin dashboard
-
-API-based backend
-
-Improved UI/UX
-
-Authentication & security features
-
-📜 License
-
-This project is licensed under the MIT License.
-
-🙌 Author
-
-Advik
-2nd Year CSE Student
-📍 India
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/railway-reservation-system.git
